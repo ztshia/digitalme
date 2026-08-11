@@ -1,0 +1,14 @@
+services:
+  dm-persona:
+    build: .
+    image: dm-persona:latest
+    container_name: dm-persona
+    ports:
+      - "5616:5616"
+    environment:
+      - PORT=5616
+      - HOST=0.0.0.0
+    restart: unless-stopped
+    volumes:
+      # 挂载宿主 app，重新生成 persona-data.js 等数据文件后无需重建容器即可生效
+      - ./app:/app/app

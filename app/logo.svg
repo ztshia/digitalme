@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 36" width="160" height="36">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <text x="0" y="26" font-family="-apple-system, 'Helvetica Neue', sans-serif" font-size="22" font-weight="700" fill="url(#lg)" letter-spacing="1">Digital Me</text>
+</svg>

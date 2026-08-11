@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Me · 登录</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+<style>
+/* ===== 设计令牌 ===== */
+:root {
+  --bg-base: #e9e5dd;
+  --bg-blob-1: #c9b8a8;
+  --bg-blob-2: #b0a89b;
+  --bg-blob-3: #9aab92;
+  --surface: rgba(255,253,250,0.72);
+  --surface-2: rgba(248,245,240,0.88);
+  --border: rgba(170,158,140,0.20);
+  --border-strong: rgba(170,158,140,0.35);
+  --ink: #3d3833;
+  --ink-2: #7d7568;
+  --ink-3: #aba092;
+  --accent: #818cf8;
+  --accent-grad: linear-gradient(135deg,#818cf8,#6366f1);
+  --accent-glow: rgba(129,140,248,0.25);
+  --input-bg: rgba(245,242,236,0.65);
+  --input-border: rgba(170,158,140,0.28);
+  --input-focus: rgba(129,140,248,0.30);
+  --err-bg: rgba(248,113,113,0.10);
+  --err-text: #dc2626;
+  --shadow: 0 1px 3px rgba(120,100,70,0.04), 0 8px 30px rgba(120,100,70,0.08);
+  --shadow-lg: 0 2px 8px rgba(120,100,70,0.06), 0 20px 60px rgba(120,100,70,0.12);
+  --blur: 40px;
+  --sat: 160%;
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+[data-theme="dark"] {
+  --bg-base: #08080f;
+  --bg-blob-1: #0a2e1a;
+  --bg-blob-2: #054d2a;
+  --bg-blob-3: #0e3a1f;
+  --surface: rgba(18,30,22,0.55);
+  --surface-2: rgba(22,38,28,0.70);
+  --border: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.12);
+  --ink: #eaeaf0;
+  --ink-2: #9090a0;
+  --ink-3: #50505a;
+  --accent: #818cf8;
+  --accent-grad: linear-gradient(135deg,#6366f1,#4f46e5);
+  --accent-glow: rgba(129,140,248,0.18);
+  --input-bg: rgba(255,255,255,0.03);
+  --input-border: rgba(255,255,255,0.06);
+  --input-focus: rgba(129,140,248,0.20);
+  --err-bg: rgba(255,99,71,0.08);
+  --err-text: #ff7a7a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.20), 0 8px 32px rgba(0,0,0,0.35);
+  --shadow-lg: 0 2px 8px rgba(0,0,0,0.25), 0 24px 80px rgba(0,0,0,0.50);
+  --blur: 44px;
+  --sat: 180%;
+  --radius: 22px;
+  --radius-sm: 14px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{
+  font-family:"Noto Sans SC","Source Han Sans SC","Source Han Sans CN","思源黑体","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg-base);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+  transition:background 0.5s ease,color 0.5s ease;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* 背景光斑 */
+.blob{position:fixed;border-radius:50%;filter:blur(var(--blur));z-index:0;pointer-events:none;transition:all 0.5s ease}
+.blob-1{width:520px;height:520px;background:var(--bg-blob-1);top:-180px;left:-140px;opacity:0.45}
+.blob-2{width:420px;height:420px;background:var(--bg-blob-2);bottom:-160px;right:-120px;opacity:0.35}
+.blob-3{width:300px;height:300px;background:var(--bg-blob-3);top:40%;left:55%;opacity:0.25}
+[data-theme="dark"] .blob-1{opacity:0.22}
+[data-theme="dark"] .blob-2{opacity:0.18}
+[data-theme="dark"] .blob-3{opacity:0.12}
+
+/* 主题切换 */
+.theme-btn{
+  position:fixed;top:20px;right:20px;
+  width:38px;height:38px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  backdrop-filter:blur(20px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(20px) saturate(var(--sat));
+  color:var(--ink-2);font-size:15px;cursor:pointer;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s ease;
+}
+.theme-btn:hover{color:var(--accent);border-color:var(--border-strong);transform:scale(1.05)}
+.theme-btn:active{transform:scale(0.95)}
+
+/* 玻璃卡片 */
+.card{
+  position:relative;z-index:1;
+  background:var(--surface);
+  backdrop-filter:blur(36px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(36px) saturate(var(--sat));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:40px 36px;
+  width:360px;
+  box-shadow:var(--shadow-lg);
+  transition:all 0.4s ease;
+}
+.card::before{
+  content:"";position:absolute;inset:0;border-radius:var(--radius);
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent 50%);
+  pointer-events:none;
+  opacity:0.6;
+}
+[data-theme="dark"] .card::before{
+  background:linear-gradient(135deg,rgba(255,255,255,0.06),transparent 60%);
+}
+
+.logo{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--accent-grad);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#fff;margin-bottom:20px;
+  box-shadow:0 6px 20px var(--accent-glow);
+}
+
+h1{font-size:19px;font-weight:700;margin-bottom:2px;letter-spacing:-0.02em}
+.sub{font-size:13px;color:var(--ink-2);margin-bottom:28px}
+
+label{display:block;font-size:13px;color:var(--ink-2);margin:18px 0 6px;font-weight:500}
+input{
+  width:100%;padding:12px 14px;
+  border:1px solid var(--input-border);
+  border-radius:var(--radius-sm);
+  font-size:14px;outline:none;
+  background:var(--input-bg);
+  color:var(--ink);
+  transition:border-color 0.25s,box-shadow 0.25s;
+  -webkit-appearance:none;
+}
+input::placeholder{color:var(--ink-3)}
+input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3.5px var(--input-focus);
+}
+
+button[type="submit"]{
+  width:100%;margin-top:30px;padding:13px;
+  background:var(--accent-grad);
+  color:#fff;border:0;border-radius:var(--radius-sm);
+  font-size:15px;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 16px var(--accent-glow);
+  transition:all 0.25s ease;
+  position:relative;overflow:hidden;
+}
+button[type="submit"]:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 24px var(--accent-glow);
+}
+button[type="submit"]:active{transform:translateY(0)}
+
+.err{
+  margin-top:16px;padding:10px 14px;
+  background:var(--err-bg);color:var(--err-text);
+  border-radius:var(--radius-sm);
+  font-size:13px;text-align:center;
+  display:none;
+}
+
+@media(max-width:480px){
+  .card{width:calc(100% - 32px);padding:36px 28px;border-radius:18px}
+  .blob{filter:blur(30px)}
+}
+</style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <button class="theme-btn" id="themeBtn" title="明暗切换" onclick="toggleTheme()">
+    <i class="fa-solid fa-moon" id="themeIcon"></i>
+  </button>
+
+  <form class="card" method="post" action="/login">
+    <div class="logo"><i class="fa-solid fa-comment-dots"></i></div>
+    <h1>Digital Me 控制台</h1>
+    <p class="sub">登录后查看访客对话记录</p>
+    <label for="u">用户名</label>
+    <input id="u" name="username" autocomplete="username" placeholder="请输入用户名" required autofocus>
+    <label for="p">密码</label>
+    <input id="p" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" required>
+    <button type="submit">登 录</button>
+    <div class="err" id="err">用户名或密码错误，请重试</div>
+  </form>
+
+  <script>
+    function toggleTheme(){
+      const cur=document.documentElement.getAttribute('data-theme');
+      const next=cur==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',next);
+      document.getElementById('themeIcon').className=next==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+      try{localStorage.setItem('dm_admin_theme',next)}catch(e){}
+    }
+    (function(){
+      let t='light';
+      try{t=localStorage.getItem('dm_admin_theme')||'light'}catch(e){}
+      document.documentElement.setAttribute('data-theme',t);
+      document.getElementById('themeIcon').className=t==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+    })();
+    if(new URLSearchParams(location.search).get('error')==='1'){
+      document.getElementById('err').style.display='block';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Dependencies
+vendor/
+__pycache__/
+*.pyc
+
+# Sensitive — never commit
+app/persona-data.js
+app/server-config.json
+app/admin_db.db
+
+# User assets (replace with your own)
+app/avatar.jpg
+app/logo.png
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Backups
+*.bak.*

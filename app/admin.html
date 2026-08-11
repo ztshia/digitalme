@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Me · 控制台</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   设计令牌
+   ============================================================ */
+:root {
+  /* 莫兰迪多色（亮色） */
+  --bg-base: #e9e5dd;
+  --blob-1: #c9b8a8;  --blob-2: #b0a89b;  --blob-3: #9aab92;
+  --surface: rgba(255,253,250,0.70);
+  --surface-2: rgba(248,245,240,0.85);
+  --border: rgba(170,158,140,0.18);
+  --border-strong: rgba(170,158,140,0.30);
+  --ink: #3d3833;
+  --ink-2: #7d7568;
+  --ink-3: #aba092;
+  --accent: #8a9b85;
+  --accent-2: #b08d8a;
+  --accent-grad: linear-gradient(135deg,#9aab92,#7e9179);
+  --accent-glow: rgba(138,155,133,0.22);
+  --accent-tint: rgba(138,155,133,0.08);
+  --danger: #c47a6c;
+  --danger-tint: rgba(196,122,108,0.08);
+  --danger-text: #a04438;
+  --ok-text: #5a7a52;
+  --input-bg: rgba(245,242,236,0.60);
+  --input-border: rgba(170,158,140,0.25);
+  --input-focus: rgba(138,155,133,0.28);
+  --hover: rgba(170,158,140,0.06);
+  --divider: rgba(170,158,140,0.12);
+  --shadow: 0 1px 3px rgba(120,100,70,0.03), 0 6px 24px rgba(120,100,70,0.06);
+  --shadow-lg: 0 2px 8px rgba(120,100,70,0.05), 0 16px 48px rgba(120,100,70,0.10);
+  --blur: 36px;
+  --sat: 160%;
+  --r: 16px; --r-sm: 10px; --r-xs: 7px;
+}
+[data-theme="dark"] {
+  /* 苹果液态玻璃（暗色）- 绿色主题 */
+  --bg-base: #08080f;
+  --blob-1: #0a2e1a;  --blob-2: #054d2a;  --blob-3: #0e3a1f;
+  --surface: rgba(18,30,22,0.52);
+  --surface-2: rgba(22,38,28,0.65);
+  --border: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.10);
+  --ink: #eaeaf0;
+  --ink-2: #9090a0;
+  --ink-3: #50505a;
+  --accent: #6366f1;
+  --accent-2: #a78bfa;
+  --accent-grad: linear-gradient(135deg,#6366f1,#4f46e5);
+  --accent-glow: rgba(99,102,241,0.15);
+  --accent-tint: rgba(99,102,241,0.08);
+  --danger: #ff6b6b;
+  --danger-tint: rgba(255,107,107,0.06);
+  --danger-text: #ff8a8a;
+  --ok-text: #4ade80;
+  --input-bg: rgba(255,255,255,0.025);
+  --input-border: rgba(255,255,255,0.05);
+  --input-focus: rgba(99,102,241,0.18);
+  --hover: rgba(255,255,255,0.03);
+  --divider: rgba(255,255,255,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.20), 0 6px 24px rgba(0,0,0,0.30);
+  --shadow-lg: 0 2px 8px rgba(0,0,0,0.25), 0 20px 60px rgba(0,0,0,0.45);
+  --blur: 40px;
+  --sat: 180%;
+  --r: 18px; --r-sm: 12px; --r-xs: 8px;
+}
+
+/* ============================================================
+   基础
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden;width:100%;max-width:100vw}
+body{
+  font-family:"Noto Sans SC","Source Han Sans SC","Source Han Sans CN","思源黑体","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg-base);
+  color:var(--ink);
+  font-size:14px;
+  min-height:100vh;
+  transition:background 0.5s ease,color 0.5s ease;
+  -webkit-font-smoothing:antialiased;
+}
+.blob{position:fixed;border-radius:50%;filter:blur(var(--blur));z-index:0;pointer-events:none;transition:all 0.5s ease}
+.blob-1{width:520px;height:520px;background:var(--blob-1);top:-180px;left:-140px;opacity:0.38}
+.blob-2{width:420px;height:420px;background:var(--blob-2);bottom:-160px;right:-120px;opacity:0.28}
+.blob-3{width:280px;height:280px;background:var(--blob-3);top:35%;left:50%;opacity:0.18}
+[data-theme="dark"] .blob-1{opacity:0.20}
+[data-theme="dark"] .blob-2{opacity:0.15}
+[data-theme="dark"] .blob-3{opacity:0.10}
+
+/* ============================================================
+   顶栏
+   ============================================================ */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:var(--surface);
+  backdrop-filter:blur(30px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(30px) saturate(var(--sat));
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+  height:56px;
+  display:flex;align-items:center;gap:16px;
+}
+.topbar-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;position:relative;z-index:2}
+.topbar-title span{color:var(--accent)}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto;position:relative;z-index:2}
+.topbar .tabs{
+  position:absolute;
+  left:max(20px,calc((100vw - 1000px) / 2 + 20px));
+  top:0;height:56px;
+  display:flex;align-items:center;gap:2px;
+  background:var(--surface);
+  backdrop-filter:blur(20px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(20px) saturate(var(--sat));
+  border:1px solid var(--border);
+  border-radius:var(--r-sm);
+  padding:3px;
+}
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--r-sm);
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--ink-2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s ease;flex-shrink:0;
+}
+.icon-btn:hover{color:var(--accent);border-color:var(--border-strong)}
+
+/* Tabs - 桌面端在 topbar 内 absolute 定位，移动端在抽屉 */
+.tab{
+  border:0;background:transparent;
+  padding:6px 14px;border-radius:var(--r-xs);
+  font-size:13px;font-weight:600;color:var(--ink-2);
+  cursor:pointer;transition:all 0.2s ease;white-space:nowrap;
+}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--accent-tint);color:var(--accent)}
+
+.logout-btn{
+  color:var(--ink-2);text-decoration:none;font-size:14px;
+  width:34px;height:34px;border:1px solid var(--border);
+  border-radius:var(--r-sm);background:var(--surface-2);
+  transition:all 0.25s ease;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.logout-btn:hover{color:var(--danger);border-color:var(--danger)}
+
+/* ============================================================
+   布局
+   ============================================================ */
+.wrap{max-width:1000px;margin:20px auto 80px;padding:0 20px;position:relative;z-index:1}
+
+/* ============================================================
+   统计卡片
+   ============================================================ */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat{
+  background:var(--surface);
+  backdrop-filter:blur(24px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(24px) saturate(var(--sat));
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:18px 20px;
+  box-shadow:var(--shadow);
+  transition:all 0.3s ease;
+}
+.stat:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.stat .stat-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stat .stat-icon{width:32px;height:32px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--accent-tint);color:var(--accent);flex-shrink:0}
+.stat .num{font-size:28px;font-weight:800;color:var(--accent);line-height:1}
+.stat .lbl{font-size:11px;color:var(--ink-3);margin-top:6px}
+.stat-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;min-height:24px;align-items:center}
+.stat-tag{
+  background:var(--accent-tint);color:var(--accent);
+  border-radius:var(--r-xs);font-size:11px;font-weight:600;
+  padding:2px 8px;
+}
+.stat-tag b{font-size:12px;margin-left:2px}
+
+/* ============================================================
+   筛选栏
+   ============================================================ */
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filters input,.filters select{
+  padding:9px 14px;border:1px solid var(--input-border);border-radius:var(--r-sm);
+  font-size:13px;outline:none;flex:1;min-width:140px;
+  background:var(--input-bg);color:var(--ink);
+  transition:border-color 0.25s,box-shadow 0.25s;
+  -webkit-appearance:none;
+}
+.filters input::placeholder{color:var(--ink-3)}
+.filters input:focus,.filters select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--input-focus);
+}
+.filters select{min-width:90px;cursor:pointer}
+.btn{
+  padding:9px 18px;border:0;border-radius:var(--r-sm);
+  font-size:13px;font-weight:600;cursor:pointer;
+  transition:all 0.25s ease;
+}
+.btn-primary{
+  background:var(--accent-grad);color:#fff;
+  box-shadow:0 2px 8px var(--accent-glow);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px var(--accent-glow)}
+.btn-ghost{
+  background:var(--surface-2);color:var(--ink-2);
+  border:1px solid var(--input-border);
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ============================================================
+   分组卡片
+   ============================================================ */
+.group{
+  background:var(--surface);
+  backdrop-filter:blur(24px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(24px) saturate(var(--sat));
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  margin-bottom:12px;overflow:hidden;
+  box-shadow:var(--shadow);
+  transition:box-shadow 0.3s ease;
+}
+.group:hover{box-shadow:var(--shadow-lg)}
+.group-head{
+  display:flex;align-items:center;gap:10px;padding:14px 18px;
+  cursor:pointer;user-select:none;transition:background 0.2s;
+}
+.group-head:hover{background:var(--hover)}
+.group-arrow{color:var(--ink-3);font-size:10px;transition:transform 0.25s;flex-shrink:0}
+.group.open .group-arrow{transform:rotate(90deg)}
+.group-ip{font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:600;color:var(--ink)}
+.group-geo{font-size:12px;color:var(--ink-2)}
+.group-count{font-size:12px;color:var(--ink-3);margin-left:auto;flex-shrink:0}
+.group-body{border-top:1px solid var(--divider);display:none}
+.group.open .group-body{display:block}
+
+/* 标签 */
+.tag{
+  display:inline-block;padding:2px 8px;border-radius:var(--r-xs);
+  font-size:11px;font-weight:600;
+}
+.tag-dev{background:var(--accent-tint);color:var(--accent)}
+.tag-br{background:rgba(176,141,138,0.10);color:var(--accent-2)}
+.tag-os{background:rgba(168,155,140,0.10);color:#8a7a6a}
+[data-theme="dark"] .tag-br{background:rgba(167,139,250,0.08);color:var(--accent-2)}
+[data-theme="dark"] .tag-os{background:rgba(74,222,128,0.06);color:#4ade80}
+
+/* 对话行 */
+.qa{padding:12px 18px;border-bottom:1px solid var(--divider)}
+.qa:last-child{border-bottom:0}
+.qa-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.qa-q{flex:1;min-width:0;font-weight:600;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.qa-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qa-time{color:var(--ink-3);font-size:11px;white-space:nowrap}
+.qa-actions{display:flex;gap:6px;margin-left:auto}
+.qa-toggle{
+  background:none;border:none;color:var(--accent);font-size:12px;
+  cursor:pointer;padding:3px 8px;border-radius:var(--r-xs);
+  transition:background 0.2s;
+}
+.qa-toggle:hover{background:var(--accent-tint)}
+.qa-del{
+  background:none;border:none;color:var(--danger);font-size:12px;
+  cursor:pointer;padding:3px 8px;border-radius:var(--r-xs);
+  transition:background 0.2s;
+}
+.qa-del:hover{background:var(--danger-tint)}
+.qa-answer{
+  margin-top:8px;color:var(--ink-2);font-size:13px;
+  white-space:pre-wrap;word-break:break-word;display:none;
+  padding:10px 14px;background:var(--input-bg);border-radius:var(--r-xs);
+}
+.qa-answer.show{display:block}
+.qa-answer.none{color:var(--ink-3);font-style:italic}
+
+/* IP 标签 */
+.ip-chip{
+  font-family:ui-monospace,Menlo,monospace;font-size:11px;
+  color:var(--ink-2);background:var(--input-bg);
+  padding:2px 7px;border-radius:var(--r-xs);white-space:nowrap;
+}
+
+/* 状态 */
+.bad{color:var(--danger-text);font-size:12px}
+
+/* 空状态 */
+.empty{text-align:center;color:var(--ink-3);padding:60px 0}
+.empty-big{font-size:36px;margin-bottom:12px}
+
+/* 分页 */
+.pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px}
+.pager button{
+  padding:8px 18px;border:1px solid var(--input-border);
+  background:var(--surface-2);border-radius:var(--r-sm);
+  font-size:13px;cursor:pointer;color:var(--ink-2);
+  transition:all 0.25s ease;
+}
+.pager button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.pager button:disabled{opacity:0.35;cursor:not-allowed}
+.pager-info{font-size:13px;color:var(--ink-2)}
+
+/* ============================================================
+   设置面板
+   ============================================================ */
+.panel{
+  background:var(--surface);
+  backdrop-filter:blur(24px) saturate(var(--sat));
+  -webkit-backdrop-filter:blur(24px) saturate(var(--sat));
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:28px 28px;
+  box-shadow:var(--shadow);
+}
+.panel h2{font-size:16px;font-weight:700;margin-bottom:2px}
+.panel-sub{font-size:13px;color:var(--ink-3);margin:0 0 20px}
+.panel label{display:block;font-size:13px;color:var(--ink-2);margin:16px 0 6px;font-weight:500}
+.panel input,.panel select{
+  width:100%;padding:10px 14px;
+  border:1px solid var(--input-border);border-radius:var(--r-sm);
+  font-size:14px;outline:none;box-sizing:border-box;
+  background:var(--input-bg);color:var(--ink);
+  transition:border-color 0.25s,box-shadow 0.25s;
+  -webkit-appearance:none;
+}
+.panel input::placeholder{color:var(--ink-3)}
+.panel input:focus,.panel select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--input-focus);
+}
+.hint{color:var(--ink-3);font-size:12px;font-weight:400}
+.form-actions{display:flex;align-items:center;gap:14px;margin-top:22px}
+.msg{font-size:13px}
+.msg.ok{color:var(--ok-text)}
+.msg.err{color:var(--danger-text)}
+
+/* ============================================================
+   方案列表
+   ============================================================ */
+.preset{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  border:1px solid var(--input-border);border-radius:var(--r-sm);
+  margin-bottom:10px;background:var(--input-bg);
+  transition:all 0.25s ease;
+}
+.preset:hover{border-color:var(--border-strong);box-shadow:var(--shadow)}
+.preset.active{border-color:var(--accent);background:var(--accent-tint)}
+.preset-name{font-weight:600;font-size:14px;flex:1}
+.preset-meta{font-size:12px;color:var(--ink-3)}
+.preset-actions{display:flex;gap:6px}
+.preset button{
+  border:1px solid var(--input-border);background:var(--surface-2);
+  border-radius:var(--r-xs);font-size:12px;padding:5px 12px;
+  cursor:pointer;color:var(--ink-2);transition:all 0.25s ease;
+}
+.preset .btn-edit:hover{border-color:var(--accent);color:var(--accent)}
+.preset .btn-switch{
+  background:var(--accent-grad);border-color:transparent;color:#fff;
+}
+.preset .btn-switch:hover{opacity:0.90}
+.preset .btn-current{
+  background:linear-gradient(135deg,#4ade80,#22c55e);
+  border-color:transparent;color:#fff;cursor:default;opacity:0.7;
+}
+.preset .btn-del:hover{color:var(--danger);border-color:var(--danger)}
+
+/* 方案编辑区 */
+.preset-edit{
+  margin-top:12px;padding:16px;
+  background:var(--input-bg);border-radius:var(--r-sm);
+  border:1px dashed var(--input-border);
+}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.preset-edit label{display:block;font-size:12px;color:var(--ink-2);margin:10px 0 4px;font-weight:500}
+.preset-edit input{
+  width:100%;padding:8px 12px;
+  border:1px solid var(--input-border);border-radius:var(--r-xs);
+  font-size:13px;outline:none;box-sizing:border-box;
+  background:var(--input-bg);color:var(--ink);
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+.preset-edit input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--input-focus)}
+.preset-edit .btn-cancel{
+  border:1px solid var(--input-border);background:var(--surface-2);
+  border-radius:var(--r-xs);font-size:13px;padding:8px 18px;
+  cursor:pointer;color:var(--ink-2);transition:all 0.25s;
+}
+.preset-edit .btn-cancel:hover{border-color:var(--ink-3);color:var(--ink)}
+
+/* 测试连接 */
+.test-row{display:flex;align-items:center;gap:12px;margin-top:14px}
+.btn-test{
+  border:1px solid var(--accent);background:transparent;color:var(--accent);
+  border-radius:var(--r-sm);font-size:13px;font-weight:600;
+  padding:8px 18px;cursor:pointer;transition:all 0.25s;
+}
+.btn-test:hover{background:var(--accent-tint)}
+.btn-test:disabled{opacity:0.5;cursor:wait}
+
+/* 全局参数 */
+.global-box{
+  margin-top:18px;padding:20px;
+  background:var(--accent-tint);
+  border:1px solid var(--border);border-radius:var(--r-sm);
+}
+.global-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.global-box label{display:block;font-size:13px;color:var(--ink-2);margin:10px 0 6px;font-weight:500}
+.global-box input{
+  width:100%;padding:9px 13px;
+  border:1px solid var(--input-border);border-radius:var(--r-sm);
+  font-size:14px;outline:none;box-sizing:border-box;
+  background:var(--input-bg);color:var(--ink);
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+.global-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--input-focus)}
+.divider{border-top:1px solid var(--divider);margin:24px 0 20px}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+/* 移动端抽屉遮罩 */
+.drawer-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:90;
+  opacity:0;pointer-events:none;transition:opacity 0.3s ease;
+}
+.drawer-overlay.show{opacity:1;pointer-events:auto}
+
+/* 桌面端隐藏移动抽屉导航 */
+.drawer-nav{display:none}
+
+/* 移动端菜单按钮 */
+.menu-btn{
+  display:none;width:34px;height:34px;border-radius:var(--r-sm);
+  border:1px solid var(--border);background:var(--surface-2);
+  color:var(--ink-2);font-size:16px;cursor:pointer;
+  align-items:center;justify-content:center;flex-shrink:0;
+}
+.menu-btn:hover{color:var(--accent);border-color:var(--border-strong)}
+
+@media(max-width:768px){
+  .topbar{padding:0 14px}
+  .topbar .tabs{display:none}
+  .menu-btn{display:flex !important;position:fixed;top:11px;left:14px;z-index:101}
+  .topbar-title{font-size:13px;flex:1;min-width:0;text-align:center;justify-content:center}
+  /* tabs 隐藏，改为抽屉 */
+  .drawer-nav{
+    display:flex;flex-direction:column;
+    position:fixed;top:0;left:0;bottom:0;
+    width:240px;height:100vh;
+    background:var(--surface-2);
+    backdrop-filter:blur(30px) saturate(var(--sat));
+    -webkit-backdrop-filter:blur(30px) saturate(var(--sat));
+    border-right:1px solid var(--border-strong);
+    border-radius:0;padding:60px 0 0 0;z-index:100;
+    transform:translateX(-100%);transition:transform 0.3s ease;
+    box-shadow:4px 0 24px rgba(0,0,0,0.15);
+  }
+  .drawer-nav.show{transform:translateX(0)}
+  .drawer-nav .tab{
+    text-align:left;padding:14px 20px;font-size:14px;
+    border-bottom:1px solid var(--divider);border-radius:0;
+    display:flex;align-items:center;gap:10px;
+  }
+  .drawer-nav .tab.active{border-left:3px solid var(--accent)}
+  .wrap{padding:0 14px;margin-top:14px}
+  .stats-grid{grid-template-columns:1fr}
+  .edit-grid{grid-template-columns:1fr}
+  .global-grid{grid-template-columns:1fr}
+  .panel{padding:20px 18px;border-radius:14px}
+  .filters{flex-direction:column}
+  .filters input,.filters select{min-width:0}
+  .group-head{flex-wrap:wrap}
+  .group-count{margin-left:0}
+}
+</style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="topbar-title"><i class="fa-solid fa-comment-dots"></i> Digital Me <span>控制台</span></div>
+    <nav class="tabs" id="drawerTabs">
+      <button class="tab active" data-tab="records" onclick="switchTab('records')"><i class="fa-solid fa-list-ul"></i> 对话记录</button>
+      <button class="tab" data-tab="security" onclick="switchTab('security')"><i class="fa-solid fa-shield-halved"></i> 安全设置</button>
+      <button class="tab" data-tab="models" onclick="switchTab('models')"><i class="fa-solid fa-gears"></i> 模型设置</button>
+    </nav>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeBtn" title="明暗切换" onclick="toggleTheme()">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+      <a class="logout-btn" href="/logout" title="退出登录"><i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+  </div>
+  <!-- 移动端抽屉 -->
+  <nav class="tabs drawer-nav" id="drawerNav">
+    <button class="tab active" data-tab="records" onclick="switchTab('records')"><i class="fa-solid fa-list-ul"></i> 对话记录</button>
+    <button class="tab" data-tab="security" onclick="switchTab('security')"><i class="fa-solid fa-shield-halved"></i> 安全设置</button>
+    <button class="tab" data-tab="models" onclick="switchTab('models')"><i class="fa-solid fa-gears"></i> 模型设置</button>
+  </nav>
+  <div class="drawer-overlay" id="overlay" onclick="toggleDrawer()"></div>
+  <button class="menu-btn" id="menuBtn" onclick="toggleDrawer()"><i class="fa-solid fa-bars"></i></button>
+
+  <div class="wrap">
+
+    <!-- ===== Tab 1: 对话记录 ===== -->
+    <section id="tab-records">
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-head"><div class="num" id="st-total">—</div><div class="stat-icon"><i class="fa-solid fa-comments"></i></div></div><div class="lbl">对话总数</div></div>
+        <div class="stat"><div class="stat-head"><div class="num" id="st-ips">—</div><div class="stat-icon"><i class="fa-solid fa-users"></i></div></div><div class="lbl">独立访客</div></div>
+        <div class="stat"><div class="stat-head"><div class="num" id="st-pv">—</div><div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div></div><div class="lbl">页面浏览</div></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-head"><div class="stat-tags" id="st-dev"></div><div class="stat-icon"><i class="fa-solid fa-desktop"></i></div></div><div class="lbl">设备分布</div></div>
+        <div class="stat"><div class="stat-head"><div class="stat-tags" id="st-os"></div><div class="stat-icon"><i class="fa-solid fa-microchip"></i></div></div><div class="lbl">操作系统</div></div>
+        <div class="stat"><div class="stat-head"><div class="stat-tags" id="st-browser"></div><div class="stat-icon"><i class="fa-solid fa-compass"></i></div></div><div class="lbl">浏览器</div></div>
+      </div>
+
+      <div class="filters">
+        <input id="kw" placeholder="搜索问题或回答...">
+        <select id="f-province" onchange="loadCities()"><option value="">全部省份</option></select>
+        <select id="f-city"><option value="">全部城市</option></select>
+        <button class="btn btn-primary" onclick="load(1)"><i class="fa-solid fa-magnifying-glass"></i> 查询</button>
+        <button class="btn btn-ghost" onclick="resetFilter()"><i class="fa-solid fa-rotate-left"></i> 重置</button>
+      </div>
+
+      <div id="groups"></div>
+      <div class="empty" id="empty" style="display:none">
+        <div class="empty-big"><i class="fa-solid fa-comments" style="font-size:36px;color:var(--ink-3)"></i></div>
+        <div id="empty-txt">还没有对话记录</div>
+      </div>
+
+      <div class="pager" id="pager" style="display:none">
+        <button id="prev" onclick="load(page-1)"><i class="fa-solid fa-chevron-left"></i> 上一页</button>
+        <span class="pager-info" id="pageinfo"></span>
+        <button id="next" onclick="load(page+1)">下一页 <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </section>
+
+    <!-- ===== Tab 2: 安全设置 ===== -->
+    <section id="tab-security" style="display:none">
+      <div class="panel">
+        <h2><i class="fa-solid fa-lock"></i> 修改登录密码</h2>
+        <p class="panel-sub">修改后当前会话保持有效，下次登录需使用新密码。</p>
+        <label>当前密码</label>
+        <input type="password" id="old-pw" autocomplete="current-password" placeholder="请输入当前密码">
+        <label>新密码（至少 6 位）</label>
+        <input type="password" id="new-pw" autocomplete="new-password" placeholder="请输入新密码">
+        <label>确认新密码</label>
+        <input type="password" id="new-pw2" autocomplete="new-password" placeholder="再次输入新密码">
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="changePw()"><i class="fa-solid fa-floppy-disk"></i> 保存修改</button>
+          <span class="msg" id="pw-msg"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Tab 3: 模型设置 ===== -->
+    <section id="tab-models" style="display:none">
+      <div class="panel">
+        <h2><i class="fa-solid fa-sliders"></i> 模型方案</h2>
+        <p class="panel-sub">每个方案只需配置名称、API 地址、Key、模型名；点击「切换」即设为当前模型。</p>
+
+        <div class="global-box">
+          <h3 style="font-size:14px;margin-bottom:2px"><i class="fa-solid fa-gauge-high"></i> 全局参数</h3>
+          <p class="panel-sub" style="margin-bottom:10px">Max Tokens 与 Temperature 对所有方案统一生效。</p>
+          <div class="global-grid">
+            <div>
+              <label>Max Tokens</label>
+              <input id="g-max-tokens" type="number" min="256" step="256">
+            </div>
+            <div>
+              <label>Temperature（0 ~ 2）</label>
+              <input id="g-temp" type="number" min="0" max="2" step="0.1">
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:14px">
+            <button class="btn btn-primary" onclick="saveGlobal()"><i class="fa-solid fa-floppy-disk"></i> 保存全局参数</button>
+            <span class="msg" id="g-msg"></span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <h2><i class="fa-solid fa-list-check"></i> 方案列表</h2>
+        <div id="preset-list"></div>
+
+        <div class="divider"></div>
+        <h2><i class="fa-solid fa-circle-plus"></i> 新增方案</h2>
+        <p class="panel-sub">填写 API 信息后先点「测试连接」验证，再添加。</p>
+        <label>方案名称</label>
+        <input id="np-name" placeholder="如：DeepSeek 官方 / Coding Plan">
+        <label>API Base URL</label>
+        <input id="np-base" placeholder="https://api.deepseek.com/v1">
+        <label>API Key <span class="hint">（必填）</span></label>
+        <input id="np-key" type="password" autocomplete="off" placeholder="sk-...">
+        <label>模型</label>
+        <input id="np-model" placeholder="deepseek-chat">
+        <div class="test-row">
+          <button class="btn-test" onclick="testConn()"><i class="fa-solid fa-plug"></i> 测试连接</button>
+          <span class="msg" id="np-test-msg"></span>
+        </div>
+        <div class="form-actions" style="margin-top:16px">
+          <button class="btn btn-primary" onclick="addPreset()"><i class="fa-solid fa-plus"></i> 添加方案</button>
+          <span class="msg" id="np-msg"></span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+<script>
+let page=1,perPage=30;
+
+/* ===== 主题 ===== */
+function toggleDrawer(){
+  var d=document.getElementById('drawerNav');
+  var o=document.getElementById('overlay');
+  d.classList.toggle('show');
+  o.classList.toggle('show');
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  document.getElementById('themeIcon').className=next==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+  try{localStorage.setItem('dm_admin_theme',next)}catch(e){}
+}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  document.getElementById('tab-records').style.display=name==='records'?'':'none';
+  document.getElementById('tab-security').style.display=name==='security'?'':'none';
+  document.getElementById('tab-models').style.display=name==='models'?'':'none';
+  if(name==='records'){load(1);loadStats();}
+  if(name==='models')loadCfg();
+  /* 移动端切 tab 后关闭抽屉 */
+  var d=document.getElementById('drawerNav');
+  var o=document.getElementById('overlay');
+  if(d.classList.contains('show')){d.classList.remove('show');o.classList.remove('show');}
+}
+
+/* ===== 安全设置 ===== */
+async function changePw(){
+  const oldPw=document.getElementById('old-pw').value;
+  const newPw=document.getElementById('new-pw').value;
+  const newPw2=document.getElementById('new-pw2').value;
+  const msg=document.getElementById('pw-msg');
+  if(!oldPw||!newPw){showMsg(msg,'请填写完整',false);return;}
+  if(newPw!==newPw2){showMsg(msg,'两次输入的新密码不一致',false);return;}
+  const r=await fetch('/api/admin/change_password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({old_password:oldPw,new_password:newPw})});
+  const d=await r.json();
+  showMsg(msg,d.msg,d.ok);
+  if(d.ok){document.getElementById('old-pw').value='';document.getElementById('new-pw').value='';document.getElementById('new-pw2').value='';}
+}
+
+/* ===== 模型配置 ===== */
+async function loadCfg(){
+  const r=await fetch('/api/admin/config');
+  if(!r.ok)return;
+  const c=await r.json();
+  document.getElementById('g-max-tokens').value=c.max_tokens||2000;
+  document.getElementById('g-temp').value=c.temp!=null?c.temp:0.9;
+  renderPresets(c.presets||[]);
+}
+
+async function saveGlobal(){
+  const msg=document.getElementById('g-msg');
+  const body={global:true,max_tokens:parseInt(document.getElementById('g-max-tokens').value)||2000,temp:parseFloat(document.getElementById('g-temp').value)||0.9};
+  const r=await fetch('/api/admin/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  showMsg(msg,d.msg,d.ok);
+}
+
+function renderPresets(presets){
+  const box=document.getElementById('preset-list');
+  box.innerHTML='';
+  if(!presets.length){box.innerHTML='<p class="panel-sub">暂无方案，请在下方新增</p>';return;}
+  presets.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='preset'+(p.active?' active':'');
+    const meta=esc(p.base)+' · '+esc(p.model);
+    div.innerHTML=`
+      <div style="flex:1">
+        <div class="preset-name">${esc(p.name)}</div>
+        <div class="preset-meta" style="margin-top:2px">${meta}</div>
+        <div class="preset-edit" id="pe-${escAttr(p.name)}" style="display:none">
+          <div class="edit-grid">
+            <div><label>方案名称</label><input class="pe-name" value="${escAttr(p.name)}"></div>
+            <div><label>API Base URL</label><input class="pe-base" value="${escAttr(p.base)}"></div>
+            <div><label>API Key <span class="hint">（必填）</span></label><input class="pe-key" type="password" placeholder="sk-..."></div>
+            <div><label>模型</label><input class="pe-model" value="${escAttr(p.model)}"></div>
+          </div>
+          <div class="form-actions" style="margin-top:14px">
+            <button class="btn btn-primary" onclick="savePresetEdit('${escAttr(p.name)}')"><i class="fa-solid fa-floppy-disk"></i> 保存修改</button>
+            <button class="btn-cancel" onclick="togglePresetEdit('${escAttr(p.name)}',false)"><i class="fa-solid fa-xmark"></i> 取消</button>
+            <span class="msg" id="pe-msg-${escAttr(p.name)}"></span>
+          </div>
+        </div>
+      </div>
+      <div class="preset-actions">
+        <button class="btn-edit" onclick="togglePresetEdit('${escAttr(p.name)}',true)"><i class="fa-solid fa-pen-to-square"></i> 编辑</button>
+        ${p.active
+          ?`<button class="btn-current" disabled><i class="fa-solid fa-check"></i> 当前</button>`
+          :`<button class="btn-switch" onclick="activatePreset('${escAttr(p.name)}')"><i class="fa-solid fa-toggle-on"></i> 切换</button>`}
+        <button class="btn-del" onclick="delPreset('${escAttr(p.name)}')"><i class="fa-solid fa-trash"></i> 删除</button>
+      </div>`;
+    box.appendChild(div);
+  });
+}
+
+function togglePresetEdit(name,show){
+  const el=document.getElementById('pe-'+name);
+  if(el)el.style.display=show?'block':'none';
+}
+
+async function savePresetEdit(name){
+  const box=document.getElementById('pe-'+name);
+  const msg=document.getElementById('pe-msg-'+name);
+  const body={preset_name:name,new_name:box.querySelector('.pe-name').value.trim(),base:box.querySelector('.pe-base').value.trim(),key:box.querySelector('.pe-key').value.trim(),model:box.querySelector('.pe-model').value.trim()};
+  if(!body.base||!body.model){showMsg(msg,'Base URL 和模型不能为空',false);return;}
+  if(!body.key){showMsg(msg,'API Key 不能为空',false);return;}
+  const r=await fetch('/api/admin/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  showMsg(msg,d.msg,d.ok);
+  if(d.ok)loadCfg();
+}
+
+function escAttr(s){
+  return String(s==null?'':s).replace(/[\\'"<>]/g,c=>({'\\':'\\\\',"'": "\\'",'"':'&quot;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+async function activatePreset(name){
+  const r=await fetch('/api/admin/presets/activate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  const d=await r.json();
+  if(d.ok)loadCfg();else alert(d.msg);
+}
+
+async function delPreset(name){
+  if(!confirm('确认删除方案「'+name+'」？'))return;
+  const r=await fetch('/api/admin/presets/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+  const d=await r.json();
+  if(d.ok)loadCfg();else alert(d.msg);
+}
+
+async function addPreset(){
+  const msg=document.getElementById('np-msg');
+  const body={name:document.getElementById('np-name').value.trim(),base:document.getElementById('np-base').value.trim(),key:document.getElementById('np-key').value.trim(),model:document.getElementById('np-model').value.trim()};
+  if(!body.name||!body.base||!body.model){showMsg(msg,'方案名称 / Base URL / 模型 不能为空',false);return;}
+  if(!body.key){showMsg(msg,'API Key 必填',false);return;}
+  const r=await fetch('/api/admin/presets/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  showMsg(msg,d.msg,d.ok);
+  if(d.ok){['np-name','np-base','np-key','np-model'].forEach(id=>document.getElementById(id).value='');loadCfg();}
+}
+
+async function testConn(){
+  const btn=document.querySelector('.btn-test');
+  const msg=document.getElementById('np-test-msg');
+  const body={base:document.getElementById('np-base').value.trim(),key:document.getElementById('np-key').value.trim(),model:document.getElementById('np-model').value.trim()};
+  if(!body.base||!body.model){showMsg(msg,'请先填写 Base URL 和模型名',false);return;}
+  btn.disabled=true;btn.textContent='测试中...';
+  showMsg(msg,'正在测试连接...',true);
+  try{
+    const r=await fetch('/api/admin/presets/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    showMsg(msg,d.msg,d.ok);
+  }catch(e){
+    showMsg(msg,'测试请求失败',false);
+  }finally{
+    btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-plug"></i> 测试连接';
+  }
+}
+
+function showMsg(el,text,ok){
+  el.textContent=text||'';
+  el.className='msg '+(ok?'ok':'err');
+  if(text)setTimeout(()=>{el.textContent='';el.className='msg';},6000);
+}
+
+/* ===== 对话记录 ===== */
+async function load(p){
+  page=p||1;
+  const kw=encodeURIComponent(document.getElementById('kw').value.trim());
+  const prov=encodeURIComponent(document.getElementById('f-province').value);
+  const city=encodeURIComponent(document.getElementById('f-city').value);
+  const url='/api/admin/conversations?page='+page+'&per_page='+perPage+'&keyword='+kw+'&province='+prov+'&city='+city;
+  const r=await fetch(url);
+  if(r.status===302||r.status===401){location.href='/login';return;}
+  if(!r.ok){alert('加载失败 '+r.status);return;}
+  const d=await r.json();
+  render(d);
+}
+
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render(d){
+  const box=document.getElementById('groups');
+  const empty=document.getElementById('empty');
+  box.innerHTML='';
+  if(!d.groups||!d.groups.length){
+    empty.style.display='block';
+    document.getElementById('empty-txt').textContent=d.total?'没有匹配的记录':'还没有对话记录';
+  }else{
+    empty.style.display='none';
+    d.groups.forEach((g,gi)=>{
+      const card=document.createElement('div');
+      card.className='group';
+      const qs=g.questions||[];
+      const tags='<span class="tag tag-dev">'+esc(g.device||'?')+'</span><span class="tag tag-br">'+esc(g.browser||'?')+'</span><span class="tag tag-os">'+esc(g.os||'?')+'</span>';
+      card.innerHTML='<div class="group-head" onclick="toggleGroup('+gi+')"><span class="group-arrow">▶</span><span class="group-ip">'+esc(g.ip||'?')+'</span>'+(g.geo?'<span class="group-geo">'+esc(g.geo)+'</span>':'')+'<span style="display:flex;gap:3px">'+tags+'</span><span class="group-count">'+qs.length+' 条</span></div><div class="group-body">'+qs.map(function(it){
+        var a=it.answer||'';
+        return '<div class="qa"><div class="qa-top"><div class="qa-q">'+esc(it.question||'（空）')+'</div></div><div class="qa-bottom"><span class="qa-time">'+esc(it.created_at)+(it.duration_ms?' · '+(it.duration_ms/1000).toFixed(1)+'s':'')+(it.ok?'':' · <span class="bad">异常</span>')+'</span><div class="qa-actions"><button class="qa-toggle" onclick="toggleAnswer('+it.id+')">'+(a?'<i class="fa-solid fa-chevron-down"></i> 展开回答':'<i class="fa-solid fa-comment-slash"></i> 无回答')+'</button><button class="qa-del" onclick="del('+it.id+')"><i class="fa-solid fa-trash"></i></button></div></div><div class="qa-answer" id="a'+it.id+'">'+(a?esc(a):'<span class="qa-answer none">（暂无回答记录）</span>')+'</div></div>';
+      }).join('')+'</div>';
+      box.appendChild(card);
+    });
+  }
+  const pager=document.getElementById('pager');
+  if(d.pages>1){
+    pager.style.display='flex';
+    document.getElementById('pageinfo').textContent='第 '+d.page+' / '+d.pages+' 页 · 共 '+d.total+' 位访客';
+    document.getElementById('prev').disabled=d.page<=1;
+    document.getElementById('next').disabled=d.page>=d.pages;
+  }else{
+    pager.style.display='none';
+  }
+}
+
+function toggleGroup(i){document.querySelectorAll('.group')[i].classList.toggle('open')}
+
+function toggleAnswer(id){
+  const el=document.getElementById('a'+id);
+  const btn=el.previousElementSibling?el.previousElementSibling.querySelector('.qa-toggle'):null;
+  if(el.classList.contains('show')){
+    el.classList.remove('show');
+    if(btn)btn.innerHTML='<i class="fa-solid fa-chevron-down"></i> 展开回答';
+  }else{
+    el.classList.add('show');
+    if(btn)btn.innerHTML='<i class="fa-solid fa-chevron-up"></i> 收起回答';
+  }
+}
+
+async function del(id){
+  if(!confirm('确认删除这条对话记录？'))return;
+  await fetch('/api/admin/conversations/'+id,{method:'DELETE'});
+  load(page);
+}
+
+/* ===== 省市筛选 ===== */
+async function loadRegions(){
+  const r=await fetch('/api/admin/regions');
+  if(!r.ok)return;
+  const d=await r.json();
+  window._cities=d.cities||{};
+  const sel=document.getElementById('f-province');
+  sel.innerHTML='<option value="">全部省份</option>';
+  (d.provinces||[]).forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+  loadCities();
+}
+
+function loadCities(){
+  const prov=document.getElementById('f-province').value;
+  const sel=document.getElementById('f-city');
+  sel.innerHTML='<option value="">全部城市</option>';
+  if(prov&&window._cities&&window._cities[prov]){
+    window._cities[prov].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  }
+}
+
+function resetFilter(){
+  document.getElementById('kw').value='';
+  document.getElementById('f-province').value='';
+  loadCities();
+  load(1);
+}
+
+async function loadStats(){
+  const r=await fetch('/api/admin/stats');
+  if(!r.ok)return;
+  const s=await r.json();
+  document.getElementById('st-total').textContent=s.total;
+  document.getElementById('st-ips').textContent=s.unique_ips;
+  document.getElementById('st-pv').textContent=s.total;
+  fillTags('st-dev',s.devices);
+  fillTags('st-os',s.os);
+  fillTags('st-browser',s.browsers);
+}
+
+function fillTags(id,list){
+  const box=document.getElementById(id);
+  box.innerHTML='';
+  if(!list||!list.length){box.innerHTML='<span class="stat-tag">—</span>';return;}
+  list.forEach(dv=>{
+    const t=document.createElement('span');
+    t.className='stat-tag';
+    t.innerHTML=esc(dv.device||dv.os||dv.browser||'?')+'<b>'+dv.c+'</b>';
+    box.appendChild(t);
+  });
+}
+
+document.getElementById('kw').addEventListener('keydown',e=>{if(e.key==='Enter')load(1);});
+
+/* ===== 初始化 ===== */
+(function(){
+  let t='light';
+  try{t=localStorage.getItem('dm_admin_theme')||'light'}catch(e){}
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeIcon').className=t==='dark'?'fa-solid fa-sun':'fa-solid fa-moon';
+})();
+
+Promise.all([loadStats(),loadRegions(),load(1)]);
+</script>
+</body>
+</html>

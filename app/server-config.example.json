@@ -1,0 +1,18 @@
+{
+  "base": "https://api.deepseek.com/v1",
+  "key": "sk-your-api-key-here",
+  "model": "deepseek-chat",
+  "max_tokens": 2000,
+  "temp": 0.9,
+  "presets": [
+    {
+      "name": "默认方案",
+      "base": "https://api.deepseek.com/v1",
+      "key": "sk-your-api-key-here",
+      "model": "deepseek-chat",
+      "max_tokens": 2000,
+      "temp": 0.9
+    }
+  ],
+  "active": "默认方案"
+}
