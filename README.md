@@ -17,6 +17,10 @@
 - 🔌 **博客嵌入** — 可作为 Widget 嵌入个人博客，右下角弹出聊天窗口
 - 🐳 **Docker 部署** — 单容器运行，挂载目录热更新数据
 
+### 界面预览
+
+![聊天主页](screenshot/homepage.png)
+
 ---
 
 ## 快速开始
@@ -142,6 +146,10 @@ CORS_ORIGINS = (
 - **安全管理** — 修改管理员密码
 - **模型管理** — 添加/切换/测试多个 AI 模型方案（支持火山方舟、DeepSeek、商汤等）
 
+![管理后台 - 对话记录](screenshot/bakcstage.png)
+
+![管理后台 - 模型配置](screenshot/setting.png)
+
 ---
 
 ## 项目结构
@@ -151,6 +159,7 @@ digitalme/
 ├── docker-compose.yml         # Docker 编排
 ├── Dockerfile                 # 镜像构建
 ├── README.md
+├── screenshot/                # 界面截图
 └── app/
     ├── server.py              # 服务入口：静态页面 + /proxy 代理 + 管理 API
     ├── index.html             # 前端聊天页面
