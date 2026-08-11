@@ -23,7 +23,7 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/yourname/digitalme.git
+git clone https://github.com/ztshia/digitalme.git
 cd digitalme
 
 # 2. 准备数据
